@@ -3,35 +3,40 @@ import { getCookies, setCookie } from "https://deno.land/std@0.201.0/http/cookie
 import { State } from "./_middleware.ts";
 
 export const handler: Handlers<any, State> = {
-    async POST(req, ctx) {
-      const form = await req.formData();
-      const email = form.get("email") as string;
-      const password = form.get("password") as string;
+  async POST(req, ctx) {
+    const form = await req.formData();
+    const email = form.get("email") as string;
+    const password = form.get("password") as string;
 
-      const {data, error} = await ctx.state.supabaseClient.auth.signInWithPassword({email, password});
-      const headers = new Headers();
+    const { data, error } = await ctx.state.supabaseClient.auth.signInWithPassword({ email, password });
+    const headers = new Headers();
 
-    
-      if (data.session) {
-        setCookie(headers, {
-          name: 'supaLogin',
-          value: data.session?.access_token,
-          maxAge: data.session.expires_in
-        })
-      }
-
-      let redirect = "/"
-      if (error) {
-        redirect = `login?error=${error.message}`
-      }
-
-      headers.set("location", redirect);
-      return new Response(null, {
-          status: 303,
-          headers,
+    if (data.session) {
+      setCookie(headers, {
+        name: 'supaLogin',
+        value: data.session.access_token,
+        maxAge: data.session.expires_in,
       });
+
+      // Fetch the user's actor data to get their preferredUsername
+      const { data: user, error: userError } = await ctx.state.supabaseClient
+        .from('actors')
+        .select('preferredUsername')
+        .eq('email', email)
+        .single();
+
+      if (!userError && user) {
+        headers.set('location', `/auth/users/${user.preferredUsername}`);
+      } else {
+        headers.set('location', '/');
+      }
+    } else {
+      headers.set('location', `login?error=${error?.message}`);
     }
-}
+
+    return new Response(null, { status: 303, headers });
+  },
+};
 
 export default function Login(props: PageProps) {
   const err = props.url.searchParams.get("error");

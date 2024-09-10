@@ -7,9 +7,12 @@ import * as $_app from "./routes/_app.tsx";
 import * as $_middleware from "./routes/_middleware.ts";
 import * as $auth_middleware from "./routes/auth/_middleware.ts";
 import * as $auth_secret from "./routes/auth/secret.tsx";
+import * as $auth_users_username_ from "./routes/auth/users/[username].tsx";
+import * as $inbox from "./routes/inbox.ts";
 import * as $index from "./routes/index.tsx";
 import * as $login from "./routes/login.tsx";
 import * as $logout from "./routes/logout.tsx";
+import * as $outbox from "./routes/outbox.ts";
 import * as $signup from "./routes/signup.tsx";
 
 import { type Manifest } from "$fresh/server.ts";
@@ -21,9 +24,12 @@ const manifest = {
     "./routes/_middleware.ts": $_middleware,
     "./routes/auth/_middleware.ts": $auth_middleware,
     "./routes/auth/secret.tsx": $auth_secret,
+    "./routes/auth/users/[username].tsx": $auth_users_username_,
+    "./routes/inbox.ts": $inbox,
     "./routes/index.tsx": $index,
     "./routes/login.tsx": $login,
     "./routes/logout.tsx": $logout,
+    "./routes/outbox.ts": $outbox,
     "./routes/signup.tsx": $signup,
   },
   islands: {},
