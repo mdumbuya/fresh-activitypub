@@ -4,7 +4,8 @@ import Nav from "./Nav.tsx";
 
 interface LayoutProps {
     isLoggedIn: boolean;
-    children: ComponentChildren;
+    preferredUsername?: string;  // Add preferredUsername as an optional prop
+    children: preact.ComponentChildren;
 }
 
 export default function Layout(props: LayoutProps) {
@@ -13,7 +14,7 @@ export default function Layout(props: LayoutProps) {
             <head>
                 <title>Fresh Auth</title>
             </head>
-            <Nav loggedIn={props.isLoggedIn} />
+            <Nav loggedIn={props.isLoggedIn} username={props.preferredUsername}/>
             <div class="p-4 mx-auto max-w-screen-md">
                 {props.children}
             </div>

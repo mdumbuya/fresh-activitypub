@@ -1,6 +1,6 @@
 import * as uuid from "jsr:@std/uuid";
 import { setCookie } from "https://deno.land/std@0.201.0/http/cookie.ts";
-import { Handlers } from "$fresh/server.ts";
+import { Handlers, PageProps } from "$fresh/server.ts";
 import { State } from "./_middleware.ts";
 
 export const handler: Handlers<any, State> = {
@@ -19,6 +19,17 @@ export const handler: Handlers<any, State> = {
         name: 'supaLogin',
         value: data.session.access_token,
         maxAge: data.session.expires_in,
+        httpOnly: true,  // Ensure the cookie is HTTP only for security
+        secure: true,    // Ensure the cookie is only sent over HTTPS
+      });
+
+      // Save the username in a cookie
+      setCookie(headers, {
+        name: 'username',
+        value: preferredUsername,
+        maxAge: 60 * 60 * 24 * 7, // 1 week expiration
+        httpOnly: false, // This cookie can be accessed by client-side JavaScript
+        secure: true,    // Ensure the cookie is only sent over HTTPS
       });
 
       // Try generating UUID using alternative module
@@ -49,6 +60,7 @@ export const handler: Handlers<any, State> = {
         return new Response(null, { status: 303, headers });
       }
 
+      // Redirect to user's profile after successful signup
       headers.set('location', `/auth/users/${preferredUsername}`);
     } else {
       headers.set('location', `/signup?error=${error?.message}`);
@@ -57,7 +69,6 @@ export const handler: Handlers<any, State> = {
     return new Response(null, { status: 303, headers });
   },
 };
-
 
 
 

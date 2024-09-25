@@ -3,7 +3,7 @@ import { State } from "../../_middleware.ts"; // Adjust the path if needed
 import Layout from "../../../components/Layout.tsx";
 
 export const handler: Handlers<any, State> = {
-  async GET(_, ctx) {
+  async GET(_req, ctx) {
     const { username } = ctx.params;
 
     // Fetch the actor data from Supabase
@@ -17,29 +17,33 @@ export const handler: Handlers<any, State> = {
       return new Response("User not found", { status: 404 });
     }
 
-    return ctx.render({ actor });
+    // Include the preferred username from the state
+    const preferredUsername = ctx.state.preferredUsername || null;
+
+    return ctx.render({ actor, preferredUsername });
   }
 };
 
 export default function UserProfile({ data }: PageProps) {
-  const { actor } = data;
+  const { actor, preferredUsername } = data;
+  console.log("Actor data: ", actor);
 
   return (
-    <Layout isLoggedIn={true} username={actor.preferredUsername}>
-        <section class="bg-gray-200">
-          <div class="container mx-auto py-8">
-            <div class="bg-white shadow-lg rounded-lg p-6">
-              <h1 class="text-3xl font-bold mb-6">Profile of {actor.displayName}</h1>
-              <p><strong>Username:</strong> {actor.preferredUsername}</p>
-              <p><strong>Inbox:</strong> <a href={actor.inbox}>{actor.inbox}</a></p>
-              <p><strong>Outbox:</strong> <a href={actor.outbox}>{actor.outbox}</a></p>
-              <p><strong>Followers:</strong> <a href={actor.followers}>{actor.followers}</a></p>
-              <p><strong>Following:</strong> <a href={actor.following}>{actor.following}</a></p>
-              <p><strong>Public Key:</strong></p>
-              <pre class="bg-gray-100 p-4 rounded-lg">{actor.publicKey.publicKeyPem}</pre>
-            </div>
+    <Layout isLoggedIn={true} preferredUsername={preferredUsername}>  {/* Use preferredUsername */}
+      <section class="bg-gray-200">
+        <div class="container mx-auto py-8">
+          <div class="bg-white shadow-lg rounded-lg p-6">
+            <h1 class="text-3xl font-bold mb-6">Profile of {actor.displayName}</h1>
+            <p><strong>Username:</strong> {actor.preferredUsername}</p>
+            <p><strong>Inbox:</strong> <a href={actor.inbox}>{actor.inbox}</a></p>
+            <p><strong>Outbox:</strong> <a href={actor.outbox}>{actor.outbox}</a></p>
+            <p><strong>Followers:</strong> <a href={actor.followers}>{actor.followers}</a></p>
+            <p><strong>Following:</strong> <a href={actor.following}>{actor.following}</a></p>
+            <p><strong>Public Key:</strong></p>
+            <pre class="bg-gray-100 p-4 rounded-lg">{actor.publicKey.publicKeyPem}</pre>
           </div>
-        </section>
+        </div>
+      </section>
     </Layout>
   );
 }

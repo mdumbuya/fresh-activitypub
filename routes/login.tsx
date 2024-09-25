@@ -26,6 +26,13 @@ export const handler: Handlers<any, State> = {
         .single();
 
       if (!userError && user) {
+        // Save the preferredUsername in a cookie
+        setCookie(headers, {
+          name: 'username',
+          value: user.preferredUsername,
+          maxAge: 60 * 60 * 24 * 7, // 1 week expiration
+        });
+
         headers.set('location', `/auth/users/${user.preferredUsername}`);
       } else {
         headers.set('location', '/');
